@@ -28,6 +28,22 @@ def test_category_entity(session, entity):
     assert category.entity.name == "Test Entity"
 
 
+def test_category_repr(session, entity):
+    """Tests the string representation of a category"""
+    category = Category(
+        name="Revenue Category",
+        category_account_type=Account.AccountType.OPERATING_REVENUE,
+        entity_id=entity.id,
+    )
+    session.add(category)
+    session.commit()
+
+    category = session.get(Category, category.id)
+    repr_str = repr(category)
+    assert "Revenue Category" in repr_str
+    assert "Operating Revenue" in repr_str
+
+
 def test_category_validation(session, entity):
     """Tests the validation of category objects"""
     with pytest.raises(InvalidAccountTypeError) as e:
