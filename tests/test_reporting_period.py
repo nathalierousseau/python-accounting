@@ -5,6 +5,7 @@ from python_accounting.models import ReportingPeriod, Entity
 from python_accounting.exceptions import (
     DuplicateReportingPeriodError,
     MissingReportingPeriodError,
+    MultipleOpenPeriodsError,
 )
 
 
@@ -31,6 +32,20 @@ def test_reporting_period_validation(session, entity):
                 calendar_year=datetime.today().year, period_count=1, entity_id=entity.id
             )
         )
+
+
+def test_reporting_period_multiple_open_periods(session, entity):
+    """Tests that creating a second open reporting period raises MultipleOpenPeriodsError"""
+    with pytest.raises(MultipleOpenPeriodsError) as e:
+        session.add(
+            ReportingPeriod(
+                calendar_year=datetime.today().year + 1,
+                period_count=2,
+                status=ReportingPeriod.Status.OPEN,
+                entity_id=entity.id,
+            )
+        )
+    assert "one Open Reporting Period" in str(e.value)
 
 
 def test_reporting_period_isolation(session, entity):

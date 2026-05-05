@@ -13,6 +13,17 @@ def test_currency_entity(session, entity):
     assert currency.entity.name == "Test Entity"
 
 
+def test_currency_repr(session, entity):
+    """Tests the string representation of a currency"""
+
+    currency = Currency(name="US Dollars", code="USD", entity_id=entity.id)
+    session.add(currency)
+    session.commit()
+
+    currency = session.get(Currency, currency.id)
+    assert repr(currency) == "US Dollars <USD>"
+
+
 def test_currency_isolation(session, entity):
     """Tests the isolation of currency objects by entity"""
 

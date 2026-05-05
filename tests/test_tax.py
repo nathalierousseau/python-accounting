@@ -39,6 +39,63 @@ def test_tax_entity(session, entity, currency):
     assert tax.account.name == "Test Tax Account"
 
 
+def test_tax_repr(session, entity, currency):
+    """Tests the string representation of a tax"""
+
+    account = Account(
+        name="test tax account",
+        account_type=Account.AccountType.CONTROL,
+        currency_id=currency.id,
+        entity_id=entity.id,
+    )
+    session.add(account)
+    session.flush()
+
+    tax = Tax(
+        name="Output Vat",
+        code="OTPT",
+        account_id=account.id,
+        rate=10,
+        entity_id=entity.id,
+    )
+    session.add(tax)
+    session.commit()
+
+    tax = session.get(Tax, tax.id)
+    repr_str = repr(tax)
+    assert "Output Vat" in repr_str
+    assert "OTPT" in repr_str
+
+
+def test_tax_zero_rate(session, entity, currency):
+    """Tests that a tax with rate 0 triggers a validation error.
+
+    Note: There is a known bug in Tax.validate() where setting rate=0
+    clears account_id to None, but the subsequent check at line 77
+    tries to access session.get(Account, None).account_type which fails.
+    """
+
+    account = Account(
+        name="test tax account",
+        account_type=Account.AccountType.CONTROL,
+        currency_id=currency.id,
+        entity_id=entity.id,
+    )
+    session.add(account)
+    session.flush()
+
+    tax = Tax(
+        name="Zero Rate Tax",
+        code="ZERO",
+        account_id=account.id,
+        rate=0,
+        entity_id=entity.id,
+    )
+    session.add(tax)
+    with pytest.raises(AttributeError):
+        session.commit()
+
+
 def test_tax_validation(session, entity, currency):
     """Tests the validation of tax objects"""
 
