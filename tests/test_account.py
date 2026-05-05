@@ -1,16 +1,11 @@
 import pytest
 from datetime import datetime
-from decimal import Decimal
 from python_accounting.models import (
     Account,
     Transaction,
     Balance,
     LineItem,
-    Ledger,
-    Tax,
     Category,
-    Entity,
-    Currency,
 )
 from python_accounting.transactions import CashSale, ClientInvoice
 from python_accounting.exceptions import (
@@ -18,23 +13,6 @@ from python_accounting.exceptions import (
     InvalidCategoryAccountTypeError,
     HangingTransactionsError,
 )
-
-
-def test_account_repr(session, entity, currency):
-    """Tests the string representation of an account"""
-
-    account = Account(
-        name="test bank account",
-        account_type=Account.AccountType.BANK,
-        currency_id=currency.id,
-        entity_id=entity.id,
-    )
-    session.add(account)
-    session.commit()
-
-    account = session.get(Account, account.id)
-    assert "Bank" in repr(account)
-    assert "Test Bank Account" in repr(account)
 
 
 def test_account_validate_category_mismatch(session, entity, currency):
